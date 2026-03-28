@@ -51,16 +51,7 @@
     pointer-events: all;
   }
 
-  /* Orange accent bars - right edge (from screenshot) */
-  .chat-popup::before {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--orange);
-    z-index: 10;
-  }
+
 
   /* ── CLOSE BUTTON ── */
   .close-btn {
@@ -173,7 +164,7 @@
   }
 
   .bubble p {
-    font-size: 13px;
+    font-size: 18px;
     line-height: 1.75;
     color: var(--text);
     font-weight: 300;
@@ -255,25 +246,18 @@
   }
 
   /* ── INPUT SECTION ── */
-  /* ── INPUT SECTION ── */
   .input-section {
     flex-shrink: 0;
-    padding: 0;
     position: relative;
-    /* Outer frame: 120px, vertical linear gradient border */
-    background: linear-gradient(180deg, #FF6900 0%, #FF6900 100%);
-    padding: 1px;
+    /* Outer frame: 120px total, gradient background, gradient border via padding */
+    background: linear-gradient(180deg, #3B1C07 0%, #FF6900 100%);
+    padding: 12px;
+    /* Gradient border: 1px on all sides via outline trick */
+    border-top: 1px solid transparent;
+    border-image: linear-gradient(180deg, #FF6900 0%, #FF6900 100%) 1;
   }
 
-  /* Outer gradient background behind inner bar */
-  .input-outer {
-    background: linear-gradient(180deg, #3B1C07 0%, #FF6900 100%);
-    opacity: 0.32;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
+  .input-outer { display: none; }
 
   .input-bar {
     /* Inner frame: 96px, black fill */
@@ -285,7 +269,6 @@
     height: 96px;
     position: relative;
     z-index: 1;
-    margin: 12px 0;
   }
 
   .placeholder-text {
@@ -328,28 +311,26 @@
 
   /* ── SEND BUTTON ── */
   .send-btn {
-    width: 65px;
-    height: 65px;
-    background: #1a1a1a;
-    border: none;
-    border-left: 2px solid var(--orange);
+    width: 96px;
+    height: 96px;
+    background: linear-gradient(135deg, #6b4c3b 0%, #c8a882 40%, #b09070 60%, #8b6555 100%);
+    border: 2px solid #2a1a10;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     position: relative;
-    box-shadow: 0 0 20px rgba(255,76,0,0.5), inset 0 0 20px rgba(255,76,0,0.08);
     padding: 0;
     overflow: hidden;
+    flex-shrink: 0;
   }
   .send-btn img {
-    width: 65px;
-    height: 65px;
+    width: 50px;
+    height: 50px;
     display: block;
-    object-fit: cover;
-    mix-blend-mode: normal;
-    background: #1a1a1a;
+    object-fit: contain;
+    filter: brightness(0);
   }
 
 
@@ -402,7 +383,7 @@
 </div>
 
 <script>
-const WEBHOOK_URL = 'https://nonpatented-enchantedly-reyes.ngrok-free.dev/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat';
+const WEBHOOK_URL = 'https://e8markets-tom-gibbs.app.n8n.cloud/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat';
 const ROUTE       = 'general';
 const AGENT_AVATAR = 'https://raw.githubusercontent.com/borisalek/chat-widget/main/Chat-icon.png';
 
