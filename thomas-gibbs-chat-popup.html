@@ -124,9 +124,20 @@
     margin-bottom: 32px;
     position: relative;
     z-index: 1;
+    gap: 0;
   }
-  .msg-row.left  { justify-content: flex-start; padding-right: 60px; }
-  .msg-row.right { justify-content: flex-end;  padding-left: 60px; }
+
+  /* Left = user: bubble left, user-icon right */
+  .msg-row.left {
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+
+  /* Right = agent: agent-icon left, bubble right */
+  .msg-row.right {
+    justify-content: flex-end;
+    padding-left: 58px; /* space for agent icon */
+  }
 
   /* ── BUBBLE ── */
   .bubble {
@@ -136,41 +147,11 @@
   }
   .msg-row.left .bubble {
     background: #242424;
-    border-left: none;
     border: 1px solid rgba(255,255,255,0.10);
     box-shadow: inset -2px -90px 98px 0px rgba(255,76,0,0.54);
   }
-  .msg-row.left .bubble::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 40px;
-    background: #FF4C00;
-  }
   .msg-row.right .bubble {
     background: var(--bg-bubble-right);
-    border-right: 3px solid var(--orange);
-  }
-
-  /* Vertical accent bar on sides (from screenshot) */
-  .msg-row.left .bubble::after {
-    content: '';
-    position: absolute;
-    right: -3px; top: 20%; bottom: 20%;
-    width: 2px;
-    background: var(--orange);
-    opacity: 0.5;
-  }
-  .msg-row.right .bubble::after {
-    content: '';
-    position: absolute;
-    left: -3px; top: 20%; bottom: 20%;
-    width: 2px;
-    background: var(--orange);
-    opacity: 0.5;
   }
 
   .bubble p {
@@ -180,52 +161,35 @@
     font-weight: 300;
   }
 
-  /* ── ASTERISK ── */
-  .asterisk {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 48px;
-    height: 48px;
-    background: none;
-    border: none;
-    pointer-events: none;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .asterisk img {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-  }
-  .msg-row.left .asterisk  { right: -58px; }
-  .msg-row.right .asterisk { left: -58px; }
-
-
-  /* ── AVATAR ── */
+  /* ── AVATAR (agent - left of bubble, top aligned) ── */
   .avatar {
     width: 48px;
     height: 48px;
     border-radius: 2px;
     overflow: hidden;
     flex-shrink: 0;
-    background: #1a1a1a;
-    align-self: center;
-    order: 0;
-    margin-right: 0;
-  }
-  .msg-row.right {
-    position: relative;
-    gap: 0;
-  }
-  .msg-row.right .avatar {
+    background: transparent;
+    align-self: flex-start;
     order: 0;
   }
-  .msg-row.right .bubble {
-    order: 1;
+  .msg-row.right .avatar { order: 0; }
+  .msg-row.right .bubble { order: 1; }
+
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ── USER ICON (right of user bubble, top aligned, in flex flow) ── */
+  .user-av {
+    width: 48px;
+    height: 48px;
+    border-radius: 2px;
+    overflow: hidden;
+    background: transparent;
+    flex-shrink: 0;
+    align-self: flex-start;
+    order: 2;
   }
+  .msg-row.left .bubble { order: 1; }
+  .user-av img { width: 100%; height: 100%; object-fit: cover; }
 
   .avatar img { width: 100%; height: 100%; object-fit: cover; }
   .avatar-initials {
@@ -336,7 +300,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    padding: 15px 24px 15px 15px;
+    padding: 15px;
   }
   .send-btn img {
     width: auto;
@@ -399,22 +363,10 @@
 <script>
 const WEBHOOK_URL = 'https://e8markets-tom-gibbs.app.n8n.cloud/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat';
 const ROUTE       = 'general';
-const AGENT_AVATAR = 'https://raw.githubusercontent.com/borisalek/chat-widget/main/Chat-icon.png';
+const AGENT_AVATAR = 'https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/refs/heads/main/gibbs-icon-inchat.png';
+const USER_ICON = 'https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/refs/heads/main/user-icon.png';
 
-const INITIAL = [
-  {
-    side: 'right',
-    text: 'Proactively conceptualize user-centric bandwidth via seamless infrastructures. Conveniently.'
-  },
-  {
-    side: 'left',
-    text: 'Completely transition an expanded array of e-commerce rather than proactive supply chains. Rapidiously deploy premier imperatives for cross-unit bandwidth. Authoritatively integrate multimedia based leadership after economically sound deliverables. Distinctively recaptiualize process-centric leadership before team building data.<br><br>Rapidiously leverage other\'s 2.0 content whereas interactive technology. Conveniently visualize frictionless human capital whereas bricks-and-clicks applications. Proactively engage compelling schemas for.'
-  },
-  {
-    side: 'right',
-    text: 'Completely transition an expanded array of e-commerce rather than proactive supply chains. Rapidiously deploy premier imperatives for cross-unit bandwidth. Authoritatively integrate multimedia based leadership after economically sound deliverables. Distinctively recaptiualize process-centric leadership before team building data.<br><br>Rapidiously leverage other\'s 2.0 content whereas interactive technology. Conveniently visualize frictionless human capital whereas bricks-and-clicks applications. Proactively engage compelling schemas for.'
-  },
-];
+const INITIAL = [];
 
 // Elements
 const popup      = document.getElementById('chatPopup');
@@ -440,13 +392,16 @@ function addMsg(text, side, typing = false) {
   row.className = `msg-row ${side}`;
   row.dataset.side = side;
 
-  // Avatar on both sides
   if (side === 'right') {
     const av = document.createElement('div');
     av.className = 'avatar';
-    av.innerHTML = AGENT_AVATAR
-      ? `<img src="${AGENT_AVATAR}" alt="Thomas Gibbs">`
-      : `<div class="avatar-initials">T</div>`;
+    av.innerHTML = `<img src="${AGENT_AVATAR}" alt="Thomas Gibbs">`;
+    row.appendChild(av);
+  }
+  if (side === 'left') {
+    const av = document.createElement('div');
+    av.className = 'avatar user-av';
+    av.innerHTML = `<img src="${USER_ICON}" alt="User">`;
     row.appendChild(av);
   }
 
@@ -457,12 +412,7 @@ function addMsg(text, side, typing = false) {
     ? `<div class="typing-dots"><span></span><span></span><span></span></div>`
     : `<p>${text}</p>`;
 
-  if (side === 'left') {
-    const ast = document.createElement('span');
-    ast.className = 'asterisk';
-    ast.innerHTML = '<img src="https://raw.githubusercontent.com/borisalek/chat-widget/refs/heads/main/user.png" alt="">';
-    bubble.appendChild(ast);
-  }
+
 
   row.appendChild(bubble);
   timeline.appendChild(row);
