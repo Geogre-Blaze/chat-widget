@@ -258,14 +258,19 @@
   .input-section {
     flex-shrink: 0;
     position: relative;
-    /* Outer frame: 120px total, gradient background, gradient border via padding */
-    background: linear-gradient(180deg, #3B1C07 0%, #FF6900 100%);
+    background: transparent;
     padding: 12px;
-    /* Gradient border: 1px on all sides via outline trick */
-    border-top: 1px solid rgba(59,28,7,0.9);
-    border-left: 1px solid rgba(59,28,7,0.9);
-    border-right: 1px solid rgba(59,28,7,0.9);
+    border: 2px solid rgba(255,105,0,0.64);
     border-bottom: none;
+  }
+  .input-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #3B1C07 0%, #FF6900 100%);
+    opacity: 0.32;
+    pointer-events: none;
+    z-index: 0;
   }
 
   .input-outer { display: none; }
@@ -277,7 +282,7 @@
     align-items: center;
     padding: 0 0 0 24px;
     cursor: text;
-    height: 64px;
+    height: 96px;
     position: relative;
     z-index: 1;
   }
