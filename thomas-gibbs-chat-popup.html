@@ -40,11 +40,9 @@
 
   /* ── POPUP WRAPPER ── */
   .chat-popup {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    position: relative;
     width: 100%;
-    height: 100%;
-    max-height: 100%;
+    height: 100vh;
     background: var(--bg);
     border-top: 2px solid rgba(255,255,255,0.10);
     border-left: 2px solid rgba(255,255,255,0.10);
@@ -98,7 +96,7 @@
     flex: 1;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding: 40px 40px 20px 40px;
+    padding: 24px 24px 16px 24px;
     scrollbar-width: thin;
     scrollbar-color: #FF4C00 transparent;
     position: relative;
@@ -141,7 +139,7 @@
   /* Right = agent: agent-icon left, bubble right */
   .msg-row.right {
     justify-content: flex-end;
-    padding-left: 58px; /* space for agent icon */
+    padding-left: 0;
   }
 
   /* ── BUBBLE ── */
@@ -321,22 +319,7 @@
 
 
   /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    .chat-popup {
-      width: calc(100vw - 16px);
-      right: 8px;
-      bottom: 80px;
-      height: 70vh;
-    }
-  }
-  @media (max-width: 480px) {
-    .scroll-area { padding: 28px 16px 16px; }
-    .bubble { width: 88%; padding: 12px 14px; }
-    .bubble p { font-size: 12.5px; }
-    .msg-row.left  { padding-right: 0; }
-    .msg-row.right { padding-left: 40px; }
-    .asterisk { display: none; }
-  }
+
 </style>
 </head>
 <body>
