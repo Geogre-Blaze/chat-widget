@@ -91,16 +91,17 @@
   /* ── SCROLL AREA ── */
   .scroll-area {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
     padding: 40px 40px 20px 40px;
     scrollbar-width: thin;
     scrollbar-color: #FF4C00 transparent;
     position: relative;
   }
-  .scroll-area::-webkit-scrollbar { width: 3px; }
-  .scroll-area::-webkit-scrollbar-thumb { background: #FF4C00; border-radius: 2px; }
-  .scroll-area::-webkit-scrollbar-track { background: transparent; }
+  .scroll-area::-webkit-scrollbar { width: 4px; display: block; }
+  .scroll-area::-webkit-scrollbar-thumb { background: #FF4C00; border-radius: 2px; min-height: 40px; }
+  .scroll-area::-webkit-scrollbar-track { background: rgba(255,76,0,0.1); }
+  .scroll-area::-webkit-scrollbar-button { display: none; height: 0; width: 0; }
 
   /* ── TIMELINE ── */
   .timeline { position: relative; }
