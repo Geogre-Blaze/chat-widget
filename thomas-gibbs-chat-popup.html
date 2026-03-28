@@ -262,9 +262,9 @@
     background: linear-gradient(180deg, #3B1C07 0%, #FF6900 100%);
     padding: 12px;
     /* Gradient border: 1px on all sides via outline trick */
-    border-top: 1px solid rgba(255,105,0,0.64);
-    border-left: 1px solid rgba(255,105,0,0.64);
-    border-right: 1px solid rgba(255,105,0,0.64);
+    border-top: 1px solid rgba(59,28,7,0.9);
+    border-left: 1px solid rgba(59,28,7,0.9);
+    border-right: 1px solid rgba(59,28,7,0.9);
     border-bottom: none;
   }
 
@@ -323,21 +323,20 @@
 
   /* ── SEND BUTTON ── */
   .send-btn {
-    background: linear-gradient(135deg, #6b4c3b 0%, #c8a882 40%, #b09070 60%, #8b6555 100%);
-    border: 2px solid #2a1a10;
+    background: none;
+    border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    position: relative;
     padding: 15px 24px 15px 15px;
-    overflow: hidden;
-    margin-left: auto;
   }
   .send-btn img {
-    width: 34px;
-    height: 34px;
+    width: auto;
+    height: auto;
+    max-width: 64px;
+    max-height: 64px;
     display: block;
     object-fit: contain;
   }
