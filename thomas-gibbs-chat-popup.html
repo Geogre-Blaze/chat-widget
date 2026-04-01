@@ -4,32 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thomas Gibbs Chat</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   @font-face {
     font-family: 'Aeonik';
     src: url('https://raw.githubusercontent.com/borisalek/chat-widget/main/Aeonik-Regular.woff2') format('woff2');
     font-weight: 400;
   }
-  @media (max-width: 768px) {
-    .chat-popup { padding-bottom: 100px; }
-  }
-</style>
-<style>
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --orange: #c94f0c;
-    --orange-light: #e06030;
-    --orange-glow: rgba(201,79,12,0.35);
-    --orange-border: rgba(201,79,12,0.6);
-    --bg: #0a0a0a;
-    --bg-bubble-left: #3d1a08;
-    --bg-bubble-right: #161616;
+    --bg: #000000;
+    --bg-input: #0C0C0C;
+    --bg-cta: #141414;
     --text: #e8e0d8;
-    --text-dim: #8a7a70;
-    --popup-w: 860px;
-    --popup-h: 620px;
+    --text-dim: rgba(255,255,255,0.4);
+    --orange: #c94f0c;
+    --stroke-active: #5D1C0D;
+    --stroke-cta: #141414;
+    --agent-bubble-bg: #0C0C0C;
+    --user-bubble-bg: #0C0C0C;
   }
 
   html, body {
@@ -37,185 +31,157 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: #0a0a0a;
-    font-family: 'Aeonik', 'DM Sans', sans-serif;
+    background: var(--bg);
+    font-family: 'Aeonik', sans-serif;
   }
 
-  /* ── POPUP WRAPPER ── */
   .chat-popup {
     position: relative;
     width: 100%;
     height: 100vh;
     background: var(--bg);
-    border-top: 2px solid rgba(255,255,255,0.10);
-    border-left: 2px solid rgba(255,255,255,0.10);
-    border-right: 2px solid rgba(255,255,255,0.10);
-    border-bottom: none;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    z-index: 9999;
-    box-shadow: 0 0 60px rgba(201,79,12,0.15), 0 0 0 1px rgba(201,79,12,0.08);
-    opacity: 1;
-    pointer-events: all;
-  }
-
-
-
-  /* ── CLOSE BUTTON ── */
-  .close-btn {
-    position: absolute;
-    top: 16px;
-    right: 20px;
-    width: 36px;
-    height: 36px;
-    background: transparent;
-    border-top: 2px solid rgba(255,255,255,0.10);
-    border-left: 2px solid rgba(255,255,255,0.10);
-    border-right: 2px solid rgba(255,255,255,0.10);
-    border-bottom: none;
-    color: var(--text);
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    transition: background 0.2s, color 0.2s;
-    font-family: 'Aeonik', 'DM Sans', sans-serif;
-    letter-spacing: 0;
-  }
-  .close-btn:hover {
-    background: var(--orange);
-    border-color: var(--orange);
-  }
-  .close-btn svg {
-    width: 14px;
-    height: 14px;
   }
 
   /* ── SCROLL AREA ── */
   .scroll-area {
     flex: 1;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
-    padding: 24px 24px 16px 24px;
+    padding: 32px 24px 16px 24px;
     scrollbar-width: thin;
     scrollbar-color: #FF4C00 transparent;
-    position: relative;
   }
-  .scroll-area::-webkit-scrollbar { width: 4px; display: block; }
-  .scroll-area::-webkit-scrollbar-thumb { background: #FF4C00; border-radius: 2px; min-height: 40px; }
-  .scroll-area::-webkit-scrollbar-track { background: rgba(255,76,0,0.1); }
-  .scroll-area::-webkit-scrollbar-button { display: none; height: 0; width: 0; }
+  .scroll-area::-webkit-scrollbar { width: 3px; }
+  .scroll-area::-webkit-scrollbar-thumb { background: #FF4C00; border-radius: 2px; }
+  .scroll-area::-webkit-scrollbar-track { background: transparent; }
+  .scroll-area::-webkit-scrollbar-button { display: none; }
 
-  /* ── TIMELINE ── */
-  .timeline { position: relative; }
-
-  .curves-svg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-    overflow: visible;
-    z-index: 0;
+  /* ── INITIAL STATE ── */
+  .initial-state {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
   }
 
+  .agent-intro {
+    padding: 24px 0 0 0;
+    margin-top: auto;
+  }
 
-
-  /* ── MESSAGE ROW ── */
-  .msg-row {
+  .agent-intro-inner {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 32px;
-    position: relative;
-    z-index: 1;
-    gap: 0;
+    gap: 16px;
   }
 
-  /* Left = user: bubble left, user-icon right */
-  .msg-row.left {
-    justify-content: flex-start;
-    padding-right: 0;
+  .agent-intro-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
   }
+  .agent-intro-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* Right = agent: agent-icon left, bubble right */
-  .msg-row.right {
-    justify-content: flex-end;
-    padding-left: 0;
-  }
-
-  /* ── BUBBLE ── */
-  .bubble {
-    width: 80%;
-    padding: 18px 22px;
-    position: relative;
-  }
-  .msg-row.left .bubble {
-    background: #242424;
-    border: 1px solid rgba(255,255,255,0.10);
-    box-shadow: inset -2px -90px 98px 0px rgba(255,76,0,0.54);
-  }
-  .msg-row.right .bubble {
-    background: var(--bg-bubble-right);
-  }
-
-  .bubble p {
-    font-size: 18px;
-    line-height: 1.75;
+  .agent-intro-text {
+    font-size: 16px;
+    line-height: 1.7;
     color: var(--text);
     font-weight: 300;
   }
 
-  /* ── AVATAR (agent - left of bubble, top aligned) ── */
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 2px;
-    overflow: hidden;
-    flex-shrink: 0;
-    background: transparent;
-    align-self: flex-start;
-    order: 0;
+  /* ── CTA GRID ── */
+  .cta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
-  .msg-row.right .avatar { order: 0; }
-  .msg-row.right .bubble { order: 1; }
 
-  .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-  /* ── USER ICON (right of user bubble, top aligned, in flex flow) ── */
-  .user-av {
-    width: 48px;
-    height: 48px;
-    border-radius: 2px;
-    overflow: hidden;
-    background: transparent;
-    flex-shrink: 0;
-    align-self: flex-start;
-    order: 2;
+  .cta-btn {
+    background: var(--bg-cta);
+    border: 1px solid var(--stroke-cta);
+    padding: 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s, background 0.2s;
+    border-radius: 8px;
   }
-  .msg-row.left .bubble { order: 1; }
-  .user-av img { width: 100%; height: 100%; object-fit: cover; }
+  .cta-btn:hover {
+    border-color: rgba(93,28,13,0.8);
+    background: #1a1a1a;
+  }
 
-  .avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .avatar-initials {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, var(--orange) 0%, #7a2e04 100%);
+  .cta-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    font-family: 'Aeonik', sans-serif;
+    margin-bottom: 4px;
+  }
+
+  .cta-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'Aeonik', sans-serif;
+    line-height: 1.4;
+  }
+
+  /* ── TIMELINE (chat messages) ── */
+  .timeline { display: none; flex-direction: column; gap: 24px; }
+  .timeline.visible { display: flex; }
+
+  .msg-row {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    color: #fff;
-    letter-spacing: 0.05em;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .msg-row.left { flex-direction: row-reverse; }
+  .msg-row.right { flex-direction: row; }
+
+  .msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 0px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .bubble {
+    max-width: 75%;
+    padding: 14px 18px;
+    background: var(--bg-input);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .msg-row.left .bubble {
+    background: var(--user-bubble-bg);
+    border-color: rgba(93,28,13,0.4);
+    border-radius: 16px 0px 16px 16px;
+  }
+  .msg-row.right .bubble {
+    background: var(--agent-bubble-bg);
+    border-color: rgba(255,255,255,0.06);
+    border-radius: 0px 16px 16px 16px;
+  }
+
+  .bubble p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    font-weight: 300;
+    font-family: 'Aeonik', sans-serif;
   }
 
   /* ── TYPING DOTS ── */
-  .typing-dots { display: flex; gap: 5px; padding: 4px 0; align-items: center; }
+  .typing-dots { display: flex; gap: 5px; padding: 2px 0; align-items: center; }
   .typing-dots span {
     width: 6px; height: 6px; border-radius: 50%;
-    background: var(--orange);
+    background: rgba(255,255,255,0.4);
     animation: blink 1.2s infinite;
   }
   .typing-dots span:nth-child(2) { animation-delay: .2s; }
@@ -225,49 +191,49 @@
     40%{ opacity:1; transform:scale(1); }
   }
 
+  /* ── FILE PREVIEW ── */
+  .file-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .file-preview-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-preview-remove { cursor: pointer; color: var(--text-dim); font-size: 16px; line-height: 1; }
+
   /* ── INPUT SECTION ── */
   .input-section {
     flex-shrink: 0;
-    position: relative;
-    background: transparent;
-    padding: 12px;
-    border: 2px solid rgba(255,105,0,0.64);
-    border-bottom: none;
-  }
-  .input-section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, #3B1C07 0%, #FF6900 100%);
-    opacity: 0.32;
-    pointer-events: none;
-    z-index: 0;
+    padding: 12px 16px 16px;
+    background: var(--bg);
+    border-top: 1px solid rgba(255,255,255,0.06);
   }
 
-  .input-outer { display: none; }
+  .input-file-preview {
+    margin-bottom: 8px;
+    display: none;
+  }
+  .input-file-preview.has-file { display: block; }
 
   .input-bar {
-    /* Inner frame: 96px, black fill */
-    background: #000000;
+    background: var(--bg-input);
+    border: 1px solid rgba(255,255,255,0.08);
     display: flex;
-    align-items: center;
-    padding: 0 0 0 24px;
+    align-items: flex-end;
+    padding: 12px 12px 12px 16px;
     cursor: text;
-    height: 96px;
-    position: relative;
-    z-index: 1;
+    min-height: 56px;
+    transition: border-color 0.2s;
+    border-radius: 2px;
+    gap: 8px;
   }
-
-  .placeholder-text {
-    font-family: 'Aeonik', 'DM Sans', sans-serif;
-    font-size: 18px;
-    letter-spacing: 0.04em;
-    color: rgba(255,255,255,0.4);
-    flex: 1;
-    pointer-events: none;
-    user-select: none;
-    position: relative;
-    z-index: 1;
+  .input-bar.active {
+    border-color: var(--stroke-active);
   }
 
   .input-bar textarea {
@@ -276,216 +242,263 @@
     border: none;
     outline: none;
     resize: none;
-    font-family: 'Aeonik', 'DM Sans', sans-serif;
-    font-size: 18px;
+    font-family: 'Aeonik', sans-serif;
+    font-size: 15px;
     color: var(--text);
-    position: relative;
-    z-index: 1;
     line-height: 1.5;
-    display: none;
-    padding: 4px 0;
+    padding: 0;
     overflow-y: auto;
-    height: auto;
-    max-height: 72px;
-    scrollbar-width: thin;
-    scrollbar-color: #FF6900 transparent;
+    max-height: 120px;
+    scrollbar-width: none;
+    align-self: center;
   }
-  .input-bar textarea::-webkit-scrollbar { width: 3px; }
-  .input-bar textarea::-webkit-scrollbar-thumb { background: #FF6900; border-radius: 2px; }
-  .input-bar textarea::-webkit-scrollbar-track { background: transparent; }
-  .input-bar.active textarea { display: block; }
-  .input-bar.active .placeholder-text { display: none; }
-  .input-bar textarea::placeholder { color: rgba(255,255,255,0.4); font-family: 'Aeonik', 'DM Sans', sans-serif; font-size: 18px; }
+  .input-bar textarea::-webkit-scrollbar { display: none; }
+  .input-bar textarea::placeholder {
+    color: var(--text-dim);
+    font-family: 'Aeonik', sans-serif;
+    font-size: 15px;
+  }
 
-  /* ── SEND BUTTON ── */
-  .send-btn {
+  .input-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .attach-btn, .send-btn {
     background: none;
     border: none;
     cursor: pointer;
+    padding: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    padding: 15px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
   }
-  .send-btn img {
-    width: auto;
-    height: auto;
-    max-width: 64px;
-    max-height: 64px;
-    display: block;
-    object-fit: contain;
-  }
+  .attach-btn:hover, .send-btn:hover { opacity: 1; }
+  .attach-btn img, .send-btn img { width: 22px; height: 22px; object-fit: contain; }
 
-
-
-
-
-  /* ── RESPONSIVE ── */
+  /* hidden file input */
+  #fileInput { display: none; }
 
   @media (max-width: 768px) {
-    .chat-popup { padding-bottom: 100px; }
+    .cta-grid { grid-template-columns: 1fr; }
+    .chat-popup { padding-bottom: 80px; }
   }
 </style>
 </head>
 <body>
 
-<!-- CHAT POPUP -->
 <div class="chat-popup" id="chatPopup">
 
-  <!-- Scroll area -->
   <div class="scroll-area" id="scrollArea">
-    <div class="timeline" id="timeline">
-      <svg class="curves-svg" id="curvesSvg"></svg>
+
+    <!-- Initial state: intro + CTAs -->
+    <div class="initial-state" id="initialState">
+      <div class="cta-grid">
+        <button class="cta-btn" onclick="sendCTA('How did your setup change things for you?')">
+          <div class="cta-title">Your Setup</div>
+          <div class="cta-sub">How did this setup change things for you?</div>
+        </button>
+        <button class="cta-btn" onclick="sendCTA('What made you more consistent with the guardrails?')">
+          <div class="cta-title">Guardrails</div>
+          <div class="cta-sub">What made you more consistent</div>
+        </button>
+        <button class="cta-btn" onclick="sendCTA('What should new traders know before starting?')">
+          <div class="cta-title">New Trader Advice</div>
+          <div class="cta-sub">What to know before starting</div>
+        </button>
+        <button class="cta-btn" onclick="sendCTA('Tell me about your journey from first payout to six figures')">
+          <div class="cta-title">My Journey</div>
+          <div class="cta-sub">From first payout to six figures</div>
+        </button>
+      </div>
+
+      <div class="agent-intro">
+        <div class="agent-intro-inner">
+          <div class="agent-intro-avatar">
+            <img src="https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/refs/heads/main/gibbs-icon-inchat.png" alt="Tom Gibbs">
+          </div>
+          <div class="agent-intro-text">
+            I'm an AI trained on hours of Tom Gibbs' interviews — I know his trading strategy, mindset, and journey inside out.<br><br>
+            Good to see you back, mate. If you're ready to stop guessing and start scaling, hit me with your questions on my setup, the mindset, or let's pull up some live charts and get to work.
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Chat messages -->
+    <div class="timeline" id="timeline"></div>
+
   </div>
 
   <!-- Input -->
   <div class="input-section">
-    <div class="input-outer"></div>
+    <div class="input-file-preview" id="filePreviewBar"></div>
     <div class="input-bar" id="inputBar">
-      <span class="placeholder-text">YOUR QUESTION...</span>
-      <textarea id="textarea" rows="1" placeholder="YOUR QUESTION..."></textarea>
-      <button class="send-btn" id="sendBtn">
-        <img src="https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/d37df5b7593abf30e8df1fa9251f96cf774e7790/send-icon.svg" alt="send">
-      </button>
+      <textarea id="textarea" rows="1" placeholder="Message..."></textarea>
+      <div class="input-actions">
+        <button class="attach-btn" id="attachBtn" title="Attach file">
+          <img src="https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/be15cd126776ea7b8305a28528e0fa6f0d8fb23a/noun-attach-8263273%201.svg" alt="attach">
+        </button>
+        <button class="send-btn" id="sendBtn" title="Send">
+          <img src="https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/be15cd126776ea7b8305a28528e0fa6f0d8fb23a/noun-send-8317310%201.svg" alt="send">
+        </button>
+      </div>
     </div>
+    <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt">
   </div>
 
 </div>
 
 <script>
-const WEBHOOK_URL = 'https://e8markets-tom-gibbs.app.n8n.cloud/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat';
-const ROUTE       = 'general';
+const WEBHOOK_URL  = 'https://e8markets-tom-gibbs.app.n8n.cloud/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat';
 const AGENT_AVATAR = 'https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/refs/heads/main/gibbs-icon-inchat.png';
-const USER_ICON = 'https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/refs/heads/main/user-icon.png';
+const USER_ICON    = 'https://raw.githubusercontent.com/Geogre-Blaze/chat-widget/refs/heads/main/user-icon.png';
 
-const INITIAL = [];
+const sessionId      = crypto.randomUUID();
+const scrollArea     = document.getElementById('scrollArea');
+const inputBar       = document.getElementById('inputBar');
+const textarea       = document.getElementById('textarea');
+const sendBtn        = document.getElementById('sendBtn');
+const attachBtn      = document.getElementById('attachBtn');
+const fileInput      = document.getElementById('fileInput');
+const filePreviewBar = document.getElementById('filePreviewBar');
+const timeline       = document.getElementById('timeline');
+const initialState   = document.getElementById('initialState');
 
-// Elements
-const popup      = document.getElementById('chatPopup');
-const closeBtn   = document.getElementById('closeBtn');
-const timeline   = document.getElementById('timeline');
-const svg        = document.getElementById('curvesSvg');
-const scrollArea = document.getElementById('scrollArea');
-const inputBar   = document.getElementById('inputBar');
-const textarea   = document.getElementById('textarea');
-const sendBtn    = document.getElementById('sendBtn');
-const sessionId  = crypto.randomUUID();
+let chatStarted = false;
+let pendingFile = null;
 
-// Initialize immediately
-INITIAL.forEach(m => addMsg(m.text, m.side));
-setTimeout(() => { scrollArea.scrollTop = scrollArea.scrollHeight; }, 100);
+// ── Start chat (hide intro, show timeline) ──
+function startChat() {
+  if (!chatStarted) {
+    chatStarted = true;
+    initialState.style.display = 'none';
+    timeline.classList.add('visible');
+  }
+}
 
-function openPopup() {}
-function closePopup() {}
+// ── CTA click ──
+function sendCTA(text) {
+  startChat();
+  submitMessage(text);
+}
 
 // ── Add message ──
 function addMsg(text, side, typing = false) {
   const row = document.createElement('div');
   row.className = `msg-row ${side}`;
-  row.dataset.side = side;
 
-  if (side === 'right') {
-    const av = document.createElement('div');
-    av.className = 'avatar';
-    av.innerHTML = `<img src="${AGENT_AVATAR}" alt="Thomas Gibbs">`;
-    row.appendChild(av);
-  }
-  if (side === 'left') {
-    const av = document.createElement('div');
-    av.className = 'avatar user-av';
-    av.innerHTML = `<img src="${USER_ICON}" alt="User">`;
-    row.appendChild(av);
-  }
-
+  const av = document.createElement('div');
+  av.className = 'msg-avatar';
+  av.innerHTML = `<img src="${side === 'right' ? AGENT_AVATAR : USER_ICON}" alt="">`;
+  row.appendChild(av);
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
   bubble.innerHTML = typing
     ? `<div class="typing-dots"><span></span><span></span><span></span></div>`
     : `<p>${text}</p>`;
-
-
-
   row.appendChild(bubble);
-  timeline.appendChild(row);
 
+  timeline.appendChild(row);
   setTimeout(() => { scrollArea.scrollTop = scrollArea.scrollHeight; }, 60);
-  requestAnimationFrame(() => requestAnimationFrame(drawCurves));
-  return { row, bubble };
+  return bubble;
 }
 
-function drawCurves() {}
+// ── File attach ──
+attachBtn.addEventListener('click', () => fileInput.click());
 
-// ── Input logic ──
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  pendingFile = file;
+
+  filePreviewBar.classList.add('has-file');
+  filePreviewBar.innerHTML = `
+    <div class="file-preview">
+      <span class="file-preview-name">${file.name}</span>
+      <span class="file-preview-remove" onclick="removeFile()">×</span>
+    </div>`;
+});
+
+function removeFile() {
+  pendingFile = null;
+  fileInput.value = '';
+  filePreviewBar.classList.remove('has-file');
+  filePreviewBar.innerHTML = '';
+}
+
+// ── Input activation ──
 inputBar.addEventListener('click', () => {
   inputBar.classList.add('active');
   textarea.focus();
 });
-
 textarea.addEventListener('blur', () => {
   if (!textarea.value.trim()) inputBar.classList.remove('active');
 });
-
 textarea.addEventListener('input', () => {
   textarea.style.height = 'auto';
-  textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
-
+  textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
 });
-
 textarea.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitFromInput(); }
 });
-sendBtn.addEventListener('click', submit);
+sendBtn.addEventListener('click', submitFromInput);
 
-// ── Submit ──
-async function submit() {
+function submitFromInput() {
   const msg = textarea.value.trim();
-  if (!msg) return;
-
+  if (!msg && !pendingFile) return;
+  startChat();
+  submitMessage(msg, pendingFile);
   textarea.value = '';
   textarea.style.height = 'auto';
-
-  textarea.disabled = true;
   inputBar.classList.remove('active');
+  removeFile();
+}
 
-  addMsg(msg, 'left');
-  const { bubble: typingBubble } = addMsg('', 'right', true);
+// ── Submit ──
+async function submitMessage(text, file = null) {
+  textarea.disabled = true;
+
+  if (text) addMsg(text, 'left');
+  if (file) addMsg(`📎 ${file.name}`, 'left');
+
+  const typingBubble = addMsg('', 'right', true);
 
   try {
-    const res  = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ chatInput: msg, sessionId, route: ROUTE })
-    });
+    let body, headers;
+
+    if (file) {
+      const formData = new FormData();
+      if (text) formData.append('chatInput', text);
+      formData.append('sessionId', sessionId);
+      formData.append('file', file);
+      body = formData;
+      headers = {};
+    } else {
+      body = JSON.stringify({ chatInput: text, sessionId });
+      headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+    }
+
+    const res  = await fetch(WEBHOOK_URL, { method: 'POST', headers, body });
     const data = await res.json();
     typingBubble.innerHTML = `<p>${data.output || "Sorry, I couldn't process that."}</p>`;
   } catch {
-    typingBubble.innerHTML = `<p style="color:var(--text-dim)">Connection error. Please try again.</p>`;
+    typingBubble.innerHTML = `<p style="color:rgba(255,255,255,0.3)">Connection error. Please try again.</p>`;
   }
 
-  // No asterisk on right (agent) bubbles - avatar is used instead
-
-  requestAnimationFrame(() => requestAnimationFrame(drawCurves));
-  setTimeout(() => { scrollArea.scrollTop = scrollArea.scrollHeight; }, 60);
-
   textarea.disabled = false;
-
   textarea.focus();
   inputBar.classList.add('active');
+  scrollArea.scrollTop = scrollArea.scrollHeight;
 }
 
-// ── Redraw on resize/scroll ──
-window.addEventListener('resize', drawCurves);
-scrollArea.addEventListener('scroll', drawCurves);
-
-// ── Expose open/close globally for Framer ──
-window.openThomasChat  = openPopup;
-window.closeThomasChat = closePopup;
+window.openThomasChat  = () => {};
+window.closeThomasChat = () => {};
 </script>
 </body>
 </html>
